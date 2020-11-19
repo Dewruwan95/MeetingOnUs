@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "379552659769",
+    "firebase_url": "https://meetingonus-e2bb7.firebaseio.com",
+    "project_id": "meetingonus-e2bb7",
+    "storage_bucket": "meetingonus-e2bb7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:379552659769:android:73b60557660b377570d0e8",
+        "android_client_info": {
+          "package_name": "com.cybermart.meetingonus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "379552659769-5c7m93br3v0k1s8btgr76ju7msbja3tm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cybermart.meetingonus",
+            "certificate_hash": "16bfbdbc0f8e19d43016234f224fa7fd5cc30602"
+          }
+        },
+        {
+          "client_id": "379552659769-6t030j4pasq7b4l4oj5pbbcnflu3llqn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfXLU4ELkZ-WjeUHJUwpq59TdnGJluYIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "379552659769-6t030j4pasq7b4l4oj5pbbcnflu3llqn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
