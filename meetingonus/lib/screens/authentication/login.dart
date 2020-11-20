@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:meetingonus/screens/authentication/register.dart';
 import 'package:meetingonus/style/style.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -12,6 +16,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final fb = FacebookLogin();
   bool checkboxValue = true;
   bool loading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -19,17 +24,25 @@ class _LoginState extends State<Login> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  bool _success; //to check user registration complete of not
+  String _userEmail;
+
   void onChangedCheckBoxValue(bool value) {
     setState(() {
       checkboxValue = value;
     });
   }
 
-  bool _success; //to check user registration complete of not
-  String _userEmail;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   //-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ User Login Function +++++++++++++++++++++++++++++++++++++++++
   void _login() async {
+    setState(() {
+      loading = true;
+    });
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     try {
@@ -40,18 +53,86 @@ class _LoginState extends State<Login> {
           .user;
 
       showInSnackBar('Login Successful');
+      setState(() {
+        loading = false;
+      });
     } catch (e) {
       showInSnackBar('Login Failed! Please Try Again');
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  //+++++++++++++++++++++++++++++++++++++++++++++++++ Sign In With Google Function +++++++++++++++++++++++++++++++++++++++++++
+
+  void _signInWithGoogle() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    try {
+      UserCredential userCredential;
+
+      if (kIsWeb) {
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        userCredential = await _auth.signInWithPopup(googleProvider);
+      } else {
+        final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final GoogleAuthCredential googleAuthCredential =
+            GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        userCredential = await _auth.signInWithCredential(googleAuthCredential);
+      }
+
+      final user = userCredential.user;
+      showInSnackBar('Login Successful');
+    } catch (e) {
+      showInSnackBar('Failed to sign in with Google! Please Try Again.');
+      print(e);
+    }
+  }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Sign In With Facebook Function ++++++++++++++++++++++++++++++++
+  void _signInWithFacebook() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+
+    final res = await fb.logIn(permissions: [
+      FacebookPermission.publicProfile,
+      FacebookPermission.email,
+    ]);
+    switch (res.status) {
+      case FacebookLoginStatus.Success:
+        final FacebookAccessToken fbToken = res.accessToken;
+        final AuthCredential credential =
+            FacebookAuthProvider.credential(fbToken.token);
+
+        final User user = (await _auth.signInWithCredential(credential)).user;
+        showInSnackBar('Login Successful');
+
+        break;
+      case FacebookLoginStatus.Cancel:
+        showInSnackBar('Cancel by User');
+        break;
+      case FacebookLoginStatus.Error:
+        showInSnackBar('Facebook Authorization Failed');
+        print(res.error.toString());
+        break;
     }
   }
 
   //----------------------------------------------------- build snack bar ------------------------------
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(value,textAlign: TextAlign.center,),
-          duration: Duration(seconds: 3),
-        ));
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Text(
+        value,
+        textAlign: TextAlign.center,
+      ),
+      duration: Duration(seconds: 3),
+    ));
   }
 
 //------------------------------------------------------------ Common Alert Dialog ----------------------------------------
@@ -87,6 +168,26 @@ class _LoginState extends State<Login> {
     _emailController.clear();
     _passwordController.clear();
   }
+
+  //----------------------- navigation animation ------------------------
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => Register(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.fastOutSlowIn;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -331,7 +432,7 @@ class _LoginState extends State<Login> {
                                         padding: new EdgeInsets.only(
                                             left: 5.0, right: 5.0),
                                       ),
-                                      loading
+                                      loading == true
                                           ? new Image.asset(
                                               'lib/assets/gif/load.gif',
                                               width: 19.0,
@@ -385,7 +486,7 @@ class _LoginState extends State<Login> {
                         Flexible(
                           flex: 6,
                           child: InkWell(
-                            onTap: () {},
+                            onTap: _signInWithGoogle,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -414,9 +515,7 @@ class _LoginState extends State<Login> {
                         Flexible(
                           flex: 6,
                           child: InkWell(
-                            onTap: () {
-                              //_facebookLogin,----------------------------------------- facebook login function ----------------------------
-                            },
+                            onTap: _signInWithFacebook,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -447,7 +546,7 @@ class _LoginState extends State<Login> {
                   ),
                   InkWell(
                     onTap: () {
-                      // Navigator.of(context).pushNamed(Register.tag);// -------------------------- navigate to register  -------------------
+                      Navigator.of(context).push(_createRoute());
                     },
                     child: Container(
                       alignment: AlignmentDirectional.center,
