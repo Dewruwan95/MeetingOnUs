@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -10,6 +11,7 @@ import 'package:meetingonus/screens/authentication/register.dart';
 import 'package:meetingonus/style/style.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 class Login extends StatefulWidget {
   @override
@@ -17,12 +19,16 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final CollectionReference users =
+      FirebaseFirestore.instance.collection('users');
+
   final fb = FacebookLogin();
   bool checkboxValue = true;
   bool loading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   bool _success; //to check user registration complete of not
@@ -39,6 +45,20 @@ class _LoginState extends State<Login> {
     super.initState();
   }
 
+//------------------------------- send data to firestore function ---------------------------------------
+  Future<void> addUser(var id) {
+    // Call the user's CollectionReference to add a new user
+    return users
+        .doc(id)
+        .set({
+          'user_name': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text
+        })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
+
   //-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ User Login Function +++++++++++++++++++++++++++++++++++++++++
   void _login() async {
     setState(() {
@@ -52,7 +72,6 @@ class _LoginState extends State<Login> {
         password: _passwordController.text,
       ))
           .user;
-
       showInSnackBar('Login Successful');
       setState(() {
         loading = false;
@@ -89,6 +108,9 @@ class _LoginState extends State<Login> {
       }
 
       final user = userCredential.user;
+      _nameController.text = user.displayName;
+      _emailController.text = user.email;
+      addUser(user.uid);
       showInSnackBar('Login Successful');
     } catch (e) {
       showInSnackBar('Failed to sign in with Google! Please Try Again.');
@@ -112,6 +134,9 @@ class _LoginState extends State<Login> {
             FacebookAuthProvider.credential(fbToken.token);
 
         final User user = (await _auth.signInWithCredential(credential)).user;
+        _nameController.text = user.displayName;
+        _emailController.text = user.email;
+        addUser(user.uid);
         showInSnackBar('Login Successful');
 
         break;
@@ -179,7 +204,8 @@ class _LoginState extends State<Login> {
         var end = Offset.zero;
         var curve = Curves.fastOutSlowIn;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -188,6 +214,7 @@ class _LoginState extends State<Login> {
       },
     );
   }
+
   //----------------------- navigation animation for reset password ------------------------
   Route _navigateToResetPassword() {
     return PageRouteBuilder(
@@ -197,7 +224,8 @@ class _LoginState extends State<Login> {
         var end = Offset.zero;
         var curve = Curves.fastOutSlowIn;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -411,7 +439,9 @@ class _LoginState extends State<Login> {
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      Navigator.of(context).push(_navigateToResetPassword());},
+                                      Navigator.of(context)
+                                          .push(_navigateToResetPassword());
+                                    },
                                     child: Text(
                                       "Forgot Password",
                                       style: smallAddressWhiteSansRegular(),

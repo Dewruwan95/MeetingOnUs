@@ -3,8 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meetingonus/style/style.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 class Register extends StatefulWidget {
   @override
@@ -12,15 +14,40 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  // Create a CollectionReference called users that references the firestore collection
+  final CollectionReference users =
+      FirebaseFirestore.instance.collection('users');
+
   String email, password, confirmPassword, name, phone;
   bool loading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+
 
   bool _success; //to check user registration complete of not
   String _userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    Firebase.initializeApp();
+  }
+
+  //------------------------------- send data to firestore function ---------------------------------------
+  Future<void> addUser(var id) {
+    // Call the user's CollectionReference to add a new user
+    return users.doc(id)
+        .set({
+          'user_name': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text
+        })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
   //-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ User Registration Function +++++++++++++++++++++++++++++++++++++++++
 
@@ -46,6 +73,7 @@ class _RegisterState extends State<Register> {
         _success = false;
       }
       showInSnackBar('Successfully registered ' + _userEmail);
+      addUser(user.uid);
       setState(() {
         loading = false;
       });
@@ -148,8 +176,9 @@ class _RegisterState extends State<Register> {
                                           ? 'User Name cannot be empty'
                                           : null,
                                       onSaved: (String value) {
-                                        name = value;
+                                        _nameController.text = value;
                                       },
+                                      controller: _nameController,
                                     ),
                                   ),
                                   Positioned(
