@@ -34,6 +34,7 @@ dependencies:
   cloud_firestore: ^0.14.3
   google_sign_in: ^4.5.6
   flutter_login_facebook: ^0.4.0+1
+  font_awesome_flutter: 8.5.0
 
 dev_dependencies:
   flutter_test:
@@ -51,9 +52,44 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - lib/assets/icon/arrow.png
+    - lib/assets/icon/notification.png
+    - lib/assets/icon/help.png
+    - lib/assets/icon/timeline.png
+    - lib/assets/icon/signout.png
+    - lib/assets/icon/info.png
+    - lib/assets/icon/settings.png
+    - lib/assets/icon/drawerIcon.png
+    - lib/assets/icon/today.png
+    - lib/assets/icon/completed.png
+    - lib/assets/icon/date.png
+    - lib/assets/icon/attach.png
+    - lib/assets/icon/notify.png
+    - lib/assets/icon/priority.png
+    - lib/assets/icon/checked.png
+    - lib/assets/icon/delete.png
+    - lib/assets/icon/logo.png
+    - lib/assets/icon/send.png
+    - lib/assets/icon/sendicon.png
+    - lib/assets/icon/blue.png
+    - lib/assets/icon/orange.png
+    - lib/assets/icon/green.png
+    - lib/assets/icon/red.png
+    - lib/assets/icon/purple.png
+    - lib/assets/icon/graph.png
+    - lib/assets/icon/home.png
+    - lib/assets/icon/user.png
+    - lib/assets/icon/marker.png
+    - lib/assets/icon/logowithtext.png
+    - lib/assets/icon/spinner.gif
+    - lib/assets/bg/image.png
+    - lib/assets/bg/background.png
+    - lib/assets/bg/sidebar.png
+    - lib/assets/bg/sidebar_bg.png
+    - lib/assets/bg/bar.png
+    - lib/assets/gif/load.gif
+    - lib/assets/gif/spinner.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
