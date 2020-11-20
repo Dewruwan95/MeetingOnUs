@@ -49,6 +49,7 @@ class _RegisterState extends State<Register> {
       setState(() {
         loading = false;
       });
+      Navigator.pop(context);
     } catch (e) {
       showInSnackBar('Registration Failed! Please Try Again');
       setState(() {

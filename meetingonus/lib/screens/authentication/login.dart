@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:meetingonus/screens/authentication/password_reset.dart';
 import 'package:meetingonus/screens/authentication/register.dart';
 import 'package:meetingonus/style/style.dart';
 
@@ -169,8 +170,8 @@ class _LoginState extends State<Login> {
     _passwordController.clear();
   }
 
-  //----------------------- navigation animation ------------------------
-  Route _createRoute() {
+  //----------------------- navigation animation for register------------------------
+  Route _navigateToRegister() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => Register(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -187,7 +188,24 @@ class _LoginState extends State<Login> {
       },
     );
   }
+  //----------------------- navigation animation for reset password ------------------------
+  Route _navigateToResetPassword() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => PasswordReset(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.fastOutSlowIn;
 
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -393,8 +411,7 @@ class _LoginState extends State<Login> {
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      // Navigator.of(context).pushNamed(ResetPassword.tag);--------- navigate reset password window
-                                    },
+                                      Navigator.of(context).push(_navigateToResetPassword());},
                                     child: Text(
                                       "Forgot Password",
                                       style: smallAddressWhiteSansRegular(),
@@ -546,7 +563,7 @@ class _LoginState extends State<Login> {
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.of(context).push(_createRoute());
+                      Navigator.of(context).push(_navigateToRegister());
                     },
                     child: Container(
                       alignment: AlignmentDirectional.center,
