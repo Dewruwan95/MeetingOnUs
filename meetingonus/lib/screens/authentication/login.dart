@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meetingonus/screens/authentication/password_reset.dart';
 import 'package:meetingonus/screens/authentication/register.dart';
+import 'package:meetingonus/screens/home/dashboard.dart';
 import 'package:meetingonus/style/style.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -76,6 +77,7 @@ class _LoginState extends State<Login> {
       setState(() {
         loading = false;
       });
+      Navigator.of(context).push(_navigateToDashboard());
     } catch (e) {
       showInSnackBar('Login Failed! Please Try Again');
       setState(() {
@@ -112,6 +114,7 @@ class _LoginState extends State<Login> {
       _emailController.text = user.email;
       addUser(user.uid);
       showInSnackBar('Login Successful');
+      Navigator.of(context).push(_navigateToDashboard());
     } catch (e) {
       showInSnackBar('Failed to sign in with Google! Please Try Again.');
       print(e);
@@ -138,6 +141,7 @@ class _LoginState extends State<Login> {
         _emailController.text = user.email;
         addUser(user.uid);
         showInSnackBar('Login Successful');
+        Navigator.of(context).push(_navigateToDashboard());
 
         break;
       case FacebookLoginStatus.Cancel:
@@ -206,6 +210,25 @@ class _LoginState extends State<Login> {
 
         var tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+  //----------------------- navigation animation for Dashboard ------------------------
+  Route _navigateToDashboard() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => Dashboard(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.fastOutSlowIn;
+
+        var tween =
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
