@@ -5,6 +5,7 @@ import 'package:meetingonus/screens/authentication/password_reset.dart';
 import 'package:meetingonus/screens/authentication/register.dart';
 import 'package:flutter/services.dart';
 import 'package:meetingonus/screens/home/dashboard.dart';
+import 'package:meetingonus/screens/profile/profile.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

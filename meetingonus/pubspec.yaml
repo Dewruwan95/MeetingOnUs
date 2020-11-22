@@ -86,6 +86,7 @@ flutter:
     - lib/assets/icon/marker.png
     - lib/assets/icon/logowithtext.png
     - lib/assets/icon/spinner.gif
+    - lib/assets/icon/sidebaricon.png
     - lib/assets/bg/image.png
     - lib/assets/bg/background.png
     - lib/assets/bg/sidebar.png

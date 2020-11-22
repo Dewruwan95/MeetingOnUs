@@ -24,8 +24,9 @@ class _RegisterState extends State<Register> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _profileImageController = TextEditingController();
 
+  final TextEditingController _nameController = TextEditingController();
 
   bool _success; //to check user registration complete of not
   String _userEmail;
@@ -39,11 +40,13 @@ class _RegisterState extends State<Register> {
   //------------------------------- send data to firestore function ---------------------------------------
   Future<void> addUser(var id) {
     // Call the user's CollectionReference to add a new user
-    return users.doc(id)
+    return users
+        .doc(id)
         .set({
           'user_name': _nameController.text,
           'email': _emailController.text,
-          'password': _passwordController.text
+          'password': _passwordController.text,
+          'profile_url': _profileImageController.text,
         })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -96,7 +99,7 @@ class _RegisterState extends State<Register> {
       duration: Duration(seconds: 3),
     ));
   }
-
+//---------------------------------- Start Build function --------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(

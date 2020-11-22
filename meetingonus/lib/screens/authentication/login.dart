@@ -13,6 +13,11 @@ import 'package:meetingonus/style/style.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
+final plugin = FacebookLogin(debug: true);
+
+var userAuthenticationFromLoginGlobalId;
+var userEmailFromLoginGlobal;
+
 
 class Login extends StatefulWidget {
   @override
@@ -30,6 +35,8 @@ class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _profileImageController = TextEditingController();
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   bool _success; //to check user registration complete of not
@@ -54,7 +61,8 @@ class _LoginState extends State<Login> {
         .set({
           'user_name': _nameController.text,
           'email': _emailController.text,
-          'password': _passwordController.text
+          'password': _passwordController.text,
+          'profile_url': _profileImageController.text,
         })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -74,6 +82,8 @@ class _LoginState extends State<Login> {
       ))
           .user;
       showInSnackBar('Login Successful');
+      userAuthenticationFromLoginGlobalId=user.uid;
+      //currentUse =user.email;
       setState(() {
         loading = false;
       });
@@ -110,8 +120,11 @@ class _LoginState extends State<Login> {
       }
 
       final user = userCredential.user;
+      userAuthenticationFromLoginGlobalId=user.uid;
       _nameController.text = user.displayName;
       _emailController.text = user.email;
+      _profileImageController.text = user.photoURL;
+      //userEmailGlobal=user.email;
       addUser(user.uid);
       showInSnackBar('Login Successful');
       Navigator.of(context).push(_navigateToDashboard());
@@ -136,9 +149,16 @@ class _LoginState extends State<Login> {
         final AuthCredential credential =
             FacebookAuthProvider.credential(fbToken.token);
 
+        if (fbToken.token != null) {
+          _profileImageController.text =
+              await plugin.getProfileImageUrl(width: 100);
+        }
+
         final User user = (await _auth.signInWithCredential(credential)).user;
+        userAuthenticationFromLoginGlobalId=user.uid;
         _nameController.text = user.displayName;
         _emailController.text = user.email;
+       // userEmailGlobal=user.email;
         addUser(user.uid);
         showInSnackBar('Login Successful');
         Navigator.of(context).push(_navigateToDashboard());
@@ -218,6 +238,7 @@ class _LoginState extends State<Login> {
       },
     );
   }
+
   //----------------------- navigation animation for Dashboard ------------------------
   Route _navigateToDashboard() {
     return PageRouteBuilder(
@@ -228,7 +249,7 @@ class _LoginState extends State<Login> {
         var curve = Curves.fastOutSlowIn;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
