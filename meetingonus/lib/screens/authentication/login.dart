@@ -10,6 +10,7 @@ import 'package:meetingonus/screens/authentication/password_reset.dart';
 import 'package:meetingonus/screens/authentication/register.dart';
 import 'package:meetingonus/screens/home/dashboard.dart';
 import 'package:meetingonus/style/style.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -242,7 +243,7 @@ class _LoginState extends State<Login> {
   //----------------------- navigation animation for Dashboard ------------------------
   Route _navigateToDashboard() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => Dashboard(),
+      pageBuilder: (context, animation, secondaryAnimation) => MySplashScreenToDashboard(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;
@@ -653,6 +654,23 @@ class _LoginState extends State<Login> {
           ],
         ),
       ),
+    );
+  }
+}
+
+//----------------------------------- splash screen navigate to login --------------------------------
+class MySplashScreenToLogin extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SplashScreen(
+      seconds: 4,
+      navigateAfterSeconds: Login(),
+      image: Image.asset(
+        "lib/assets/bg/generallogo.png",
+      ),
+      backgroundColor: primary,
+      photoSize: 140.0,
+      loaderColor: secondary,
     );
   }
 }

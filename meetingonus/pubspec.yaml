@@ -38,6 +38,7 @@ dependencies:
   cloud_firestore: ^0.14.3
   font_awesome_flutter: 8.5.0
   firebase_database: ^4.3.0
+  splashscreen: ^1.3.5
 
 dev_dependencies:
   flutter_test:
@@ -92,6 +93,7 @@ flutter:
     - lib/assets/bg/sidebar.png
     - lib/assets/bg/sidebar_bg.png
     - lib/assets/bg/bar.png
+    - lib/assets/bg/generallogo.png
     - lib/assets/gif/load.gif
     - lib/assets/gif/spinner.gif
 

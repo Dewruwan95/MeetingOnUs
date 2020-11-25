@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:meetingonus/meetings/add_meeting.dart';
 import 'package:meetingonus/screens/home/drawer.dart';
 import 'package:meetingonus/style/style.dart';
 import 'package:meetingonus/service/user_service.dart' as myUser;
+import 'package:splashscreen/splashscreen.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
 final databaseReference = FirebaseDatabase.instance.reference();
@@ -29,9 +31,15 @@ class _DashboardState extends State<Dashboard> {
   String dateNow = DateFormat('d MMM yyyy').format(DateTime.now());
   int _currentIndex = 0;
 
+  final List<Widget> _children = [
+    MeetingInProgress(),
+    MeetingCompleted(),
+  ];
+
   @override
   void initState() {
     // TODO: implement initState
+    MySplashScreenToDashboard();
     super.initState();
     inputData();
     getLecturerStatus();
@@ -107,6 +115,27 @@ class _DashboardState extends State<Dashboard> {
     style: smallAddressWhite(),
   );
 
+  //----------------------- navigation animation for add meeting ------------------------
+  Route _navigateToAddMeeting() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => AddMeeting(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.fastOutSlowIn;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
+  //---------------------------------------- start build function --------------------------
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -160,7 +189,6 @@ class _DashboardState extends State<Dashboard> {
                             height: 25.0,
                             width: 25.0,
                           ),
-//                      Text(dateNow, style: subTitleWhiteSR()),
                         ),
                       ),
                       BottomNavigationBarItem(
@@ -177,18 +205,112 @@ class _DashboardState extends State<Dashboard> {
                             width: 25.0,
                             color: Colors.white70,
                           ),
-//                      Text("2/10", style: subTitleWhiteSR()),
                         ),
                       )
                     ],
                   ),
                 ),
-                // _children[_currentIndex],
+                _children[_currentIndex],
               ],
             ),
           ),
+          floatingActionButton: FloatingActionButton(
+              elevation: 6.0,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 26.0,
+              ),
+              backgroundColor: secondary,
+              mini: false,
+              highlightElevation: 16.0,
+              onPressed: () {
+                Navigator.of(context).push(_navigateToAddMeeting());
+              }),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         ),
       ),
+    );
+  }
+}
+//------------------------------------------------ end build--------------------------------
+
+//-------------------------------------- start  meeting in progress -------------------------------
+class MeetingInProgress extends StatefulWidget {
+  @override
+  _MeetingInProgressState createState() => _MeetingInProgressState();
+}
+
+class _MeetingInProgressState extends State<MeetingInProgress> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListView(
+        shrinkWrap: true,
+        physics: ScrollPhysics(),
+        children: <Widget>[
+          Divider(
+            height: 5.0,
+            color: bgGrey,
+          ),
+          //MeetingDetails(),
+          Padding(
+            padding: EdgeInsetsDirectional.only(
+                top: 14.0, bottom: 12.0, start: 15.0),
+            child: Text(
+              "Priorities Today",
+              style: primaryTextUnderline(),
+            ),
+          ),
+          // PriorityTaskDetails(),
+        ],
+      ),
+    );
+  }
+}
+
+//-------------------------------------- end  meeting in progress -------------------------------
+
+//----------------------------- start meeting completed -------------------------------
+
+class MeetingCompleted extends StatefulWidget {
+  @override
+  _MeetingCompletedState createState() => _MeetingCompletedState();
+}
+
+class _MeetingCompletedState extends State<MeetingCompleted> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListView(
+        shrinkWrap: true,
+        physics: ScrollPhysics(),
+        children: <Widget>[
+          Divider(
+            height: 4.0,
+            color: bgGrey,
+          ),
+          //CompletedTaskDetails(),
+        ],
+      ),
+    );
+  }
+}
+//----------------------------- end meeting completed -------------------------------
+
+//----------------------------------- splash screen navigate to dashboard --------------------------------
+class MySplashScreenToDashboard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SplashScreen(
+      seconds: 4,
+      navigateAfterSeconds: Dashboard(),
+      image: Image.asset(
+        "lib/assets/bg/generallogo.png",
+      ),
+      backgroundColor: primary,
+      photoSize: 140.0,
+      loaderColor: secondary,
     );
   }
 }

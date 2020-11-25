@@ -90,7 +90,7 @@ class _HelpState extends State<Help> {
       loading = false;
     });
   }
-
+//----------------------------- show snack bar -----------------------------------
   void showInSnackBar(String value) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text(
