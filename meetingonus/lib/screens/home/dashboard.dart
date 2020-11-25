@@ -242,6 +242,25 @@ class MeetingInProgress extends StatefulWidget {
 }
 
 class _MeetingInProgressState extends State<MeetingInProgress> {
+
+
+
+  //----------------------------- list meeting  -----------------------------
+  Widget _meetingList(){
+    return ListView.separated(
+      itemCount: 5,
+      separatorBuilder: (context,index)=>Divider(),
+      itemBuilder: (context,index){
+        return Container(
+          height: 50,
+          color: Colors.green,
+        );
+      },
+
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -257,10 +276,7 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
           Padding(
             padding: EdgeInsetsDirectional.only(
                 top: 14.0, bottom: 12.0, start: 15.0),
-            child: Text(
-              "Priorities Today",
-              style: primaryTextUnderline(),
-            ),
+            child: Text('uu'),
           ),
           // PriorityTaskDetails(),
         ],

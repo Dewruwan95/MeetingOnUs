@@ -38,7 +38,8 @@ class _HelpState extends State<Help> {
   //----------------------- navigation animation for Dashboard ------------------------
   Route _navigateToDashboard() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => myDashboard.Dashboard(),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          myDashboard.Dashboard(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;
@@ -66,8 +67,7 @@ class _HelpState extends State<Help> {
           'subject': _subjectControllerHelp.text,
           'message': _messageControllerHelp.text,
         })
-        .then((value) =>
-            print("Your message sent successfully"))
+        .then((value) => print("Your message sent successfully"))
         .catchError((error) => print("Failed to add user: $error"));
   }
 
@@ -84,12 +84,18 @@ class _HelpState extends State<Help> {
       loading = true;
     });
     addMessageToCloud(myDashboard.globalUser.getUserId());
-    showInSnackBar('Your message sent successfully, Our support team will contact you');
+
+    await Future.delayed(const Duration(seconds: 2), () {
+      showInSnackBar(
+          'Your message sent successfully, Our support team will contact you');
+    });
+
     _clearController();
     setState(() {
       loading = false;
     });
   }
+
 //----------------------------- show snack bar -----------------------------------
   void showInSnackBar(String value) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(

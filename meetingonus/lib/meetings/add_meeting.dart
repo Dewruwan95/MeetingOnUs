@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:meetingonus/screens/home/dashboard.dart' as myDashboard;
 import 'package:meetingonus/style/style.dart';
+import 'package:meetingonus/style/style.dart' as prefix0;
 
 class AddMeeting extends StatefulWidget {
   @override
@@ -30,14 +32,18 @@ class _AddMeetingState extends State<AddMeeting> {
   }
 
 //--------------------------------- schedule meeting ---------------------
-  void _scheduleMeeting() {
+  Future<void> _scheduleMeeting() async {
     setState(() {
       loading = true;
     });
 
     _addMeetingToCloud();
+    await Future.delayed(const Duration(seconds: 2), () {
+      showInSnackBar('Your meeting scheduled successfully');
+    });
+
     setState(() {
-      loading = true;
+      loading = false;
     });
   }
 
@@ -51,7 +57,8 @@ class _AddMeetingState extends State<AddMeeting> {
           'meeting_title': _meetingTitleController.text,
           'meeting_note': _meetingNoteController.text,
           'schedule_date': pickedDate,
-          'schedule_time': pickedTime,
+          'schedule_time': "${pickedTime.hour}:${pickedTime.minute}",
+          'schedule_status': 'pending',
         })
         .then((value) => print("Your meeting scheduled successfully"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -61,162 +68,247 @@ class _AddMeetingState extends State<AddMeeting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(
-          "Add New Task",
-          style: titleStyleBoldLight(),
-        ),
-        backgroundColor: primary,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        bottomOpacity: 0.0,
-        elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.close, color: Colors.black87, size: 22.0),
+          title: Text(
+            "Schedule New Meeting",
+            style: subBoldTitleWhite(),
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
+          elevation: 0.0,
+          backgroundColor: primary,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Colors.white,
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
-              }),
-        ],
-      ),
-      backgroundColor: Colors.white,
-      body: Container(
-        child: Column(
-          children: [
+              },
+            ),
+          ]),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          fit: StackFit.expand,
+          children: <Widget>[
+            new Image(
+              image: new AssetImage("lib/assets/bg/background.png"),
+              fit: BoxFit.cover,
+            ),
             SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
-                  children: [
-                    Container(
-                      padding:
-                          EdgeInsetsDirectional.only(start: 10.0, end: 10.0),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Meeting Title',
-                          hintStyle: hintStyleDark(),
-                        ),
-                        keyboardType: TextInputType.text,
-                        style: titleStyleBoldLight(),
-                        onSaved: (value) {
-                          _meetingTitleController.text = value;
-                        },
-                        controller: _meetingTitleController,
-                        cursorColor: border,
-                        validator: (String value) {
-                          if (value.isEmpty) {
-                            return 'Please enter a meeting title';
-                          } else {
-                            return '';
-                          }
-                        },
-                      ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Container(
+                  //   padding: EdgeInsets.fromLTRB(30.0, 40.0, 30.0, 0.0),
+                  //   child: Image(
+                  //     image: AssetImage("lib/assets/icon/logowithtext.png"),
+                  //     height: 70,
+                  //   ),
+                  // ),
+                  Container(
+                    width: prefix0.screenWidth(context) * 0.8,
+                    padding: EdgeInsets.fromLTRB(30.0, 40.0, 0.0, 30.0),
+                    child: Text(
+                      "Please type a meeting title and briefly describe your situation",
+                      style: subTitleWhite2SansRegular(),
+                      textAlign: TextAlign.justify,
                     ),
-                    Divider(
-                      color: Colors.grey.shade500,
-                      height: 10.0,
-                    ),
-                    Container(
-                      padding: EdgeInsetsDirectional.only(start: 10.0),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Meeting Note',
-                          hintStyle: hintStyleDark(),
-                        ),
-                        maxLength: 100,
-                        keyboardType: TextInputType.text,
-                        style: titleStyleBoldLight(),
-                        onSaved: (value) {
-                          _meetingNoteController.text = value;
-                        },
-                        controller: _meetingNoteController,
-                        cursorColor: border,
-                        validator: (String value) {
-                          if (value.isEmpty) {
-                            return 'Please enter a meeting title';
-                          } else {
-                            return '';
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Divider(
-              color: Colors.grey.shade500,
-              height: 10.0,
-            ),
-            ListTile(
-              title: Text(
-                "Schedule Date :          ${pickedDate.year} - ${pickedDate.month} - ${pickedDate.day}",
-              ),
-              trailing: Icon(
-                Icons.calendar_today_outlined,
-                size: 27.0,
-              ),
-              onTap: _pickDate,
-            ),
-            Divider(
-              color: Colors.grey.shade500,
-              height: 10.0,
-            ),
-            ListTile(
-              title: Text(
-                  "Schedule Time :          ${pickedTime.hour} : ${pickedTime.minute}"),
-              trailing: Icon(
-                Icons.access_time_outlined,
-                size: 30.0,
-              ),
-              onTap: _pickTime,
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.only(
-                  top: 80.0, start: 60.0, end: 60.0, bottom: 10.0),
-              child: RawMaterialButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-                fillColor: secondary,
-                child: Container(
-                  height: 45.0,
-                  width: screenWidth(context) * 0.5,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'SCHEDULE',
-                        style: subTitleWhiteSansRegular(),
+                  Form(
+                    key: _formKey,
+                    child: Theme(
+                      data: ThemeData(
+                        brightness: Brightness.dark,
+                        accentColor: primary,
+                        inputDecorationTheme: new InputDecorationTheme(
+                          labelStyle: new TextStyle(
+                            color: primary,
+                            fontSize: 16.0,
+                          ),
+                        ),
                       ),
-                      new Padding(
-                        padding: new EdgeInsets.only(left: 5.0, right: 5.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 15.0),
+                            child: Stack(
+                              children: <Widget>[
+                                Container(
+                                  width: screenWidth(context) * 0.83,
+                                  color: Colors.white,
+                                  padding: EdgeInsets.only(left: 65.0),
+                                  child: TextFormField(
+                                    cursorColor: border,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Meeting Title',
+                                      hintStyle: hintStyleDark(),
+                                    ),
+                                    style: hintStyleDark(),
+                                    keyboardType: TextInputType.text,
+                                    validator: (String value) => value.isEmpty
+                                        ? 'Meeting title cannot be empty'
+                                        : null,
+                                    onSaved: (String value) {
+                                      _meetingTitleController.text = value;
+                                    },
+                                    controller: _meetingTitleController,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -18.0,
+                                  left: -8.0,
+                                  right: (screenWidth(context) * 0.83) - 55.0,
+                                  child: Stack(
+                                    fit: StackFit.loose,
+                                    alignment: AlignmentDirectional.center,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        "lib/assets/icon/sendicon.png",
+                                        fit: BoxFit.fitHeight,
+                                        height: 85,
+                                        width: 85,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            bottom: 4.0, left: 0.0),
+                                        child: Icon(
+                                          Icons.notes_sharp,
+                                          color: Colors.white,
+                                          size: 16.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: prefix0.screenWidth(context) * 0.83,
+                            padding: EdgeInsets.only(bottom: 15.0),
+                            child: Stack(
+                              children: <Widget>[
+                                Container(
+                                  color: Colors.white,
+                                  padding: EdgeInsets.only(left: 12.0),
+                                  child: TextFormField(
+                                    cursorColor: border,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Meeting Note',
+                                      hintStyle: hintStyleDark(),
+                                    ),
+                                    maxLines: 5,
+                                    style: hintStyleDark(),
+                                    keyboardType: TextInputType.text,
+                                    validator: (String value) => value.isEmpty
+                                        ? 'Please write a small note'
+                                        : null,
+                                    onSaved: (String value) {
+                                      _meetingNoteController.text = value;
+                                    },
+                                    controller: _meetingNoteController,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(
+                                top: 5.0, start: 35.0, end: 35.0, bottom: 10.0),
+                            child: ListTile(
+                              tileColor: Colors.white,
+                              title: Text(
+                                "Schedule Date :  ${pickedDate.year} - ${pickedDate.month} - ${pickedDate.day}",
+                                style: hintStyleDark(),
+                              ),
+                              trailing: Icon(
+                                Icons.calendar_today_outlined,
+                                size: 27.0,
+                                color: Colors.black54,
+                              ),
+                              onTap: _pickDate,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(
+                                top: 5.0, start: 35.0, end: 35.0, bottom: 10.0),
+                            child: ListTile(
+                              tileColor: Colors.white,
+                              title: Text(
+                                "Schedule Time :  ${pickedTime.hour} : ${pickedTime.minute}",
+                                style: hintStyleDark(),
+                              ),
+                              trailing: Icon(
+                                Icons.access_time_outlined,
+                                size: 30.0,
+                                color: Colors.black54,
+                              ),
+                              onTap: _pickTime,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(
+                                top: 30.0,
+                                start: 45.0,
+                                end: 45.0,
+                                bottom: 10.0),
+                            child: RawMaterialButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              fillColor: secondary,
+                              child: Container(
+                                height: 45.0,
+                                width: screenWidth(context) * 0.5,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      'SCHEDULE',
+                                      style: subTitleWhiteSansRegular(),
+                                    ),
+                                    new Padding(
+                                      padding: new EdgeInsets.only(
+                                          left: 5.0, right: 5.0),
+                                    ),
+                                    loading == true
+                                        ? new Image.asset(
+                                            'lib/assets/gif/load.gif',
+                                            width: 19.0,
+                                            height: 19.0,
+                                          )
+                                        : new Text(''),
+                                  ],
+                                ),
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  _scheduleMeeting();
+                                }
+                              },
+                              splashColor: secondary,
+                            ),
+                          ),
+                        ],
                       ),
-                      loading == true
-                          ? new Image.asset(
-                              'lib/assets/gif/load.gif',
-                              width: 19.0,
-                              height: 19.0,
-                            )
-                          : new Text(''),
-                    ],
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    print('Schedule button clicked');
-                    //_scheduleMeeting();
-                  }
-                },
-                splashColor: secondary,
+                ],
               ),
             ),
           ],

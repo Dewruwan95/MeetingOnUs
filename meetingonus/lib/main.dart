@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:meetingonus/screens/home/dashboard.dart';
 import 'package:meetingonus/screens/home/home.dart';
 import 'package:meetingonus/screens/profile/profile.dart';
+import 'package:meetingonus/settings/help.dart';
 import 'package:meetingonus/style/style.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -30,7 +31,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Meeting on Us',
-      home: AddMeeting(),
+      home: Testing(),
     );
   }
 }
