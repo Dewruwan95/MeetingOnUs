@@ -16,8 +16,6 @@ final FirebaseAuth auth = FirebaseAuth.instance;
 final databaseReference = FirebaseDatabase.instance.reference();
 CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-Stream meetingConfirmed = FirebaseFirestore.instance.collection('Meetings').where('schedule_status',isEqualTo: 'confirmed').snapshots();
-
 String userStateText = '';
 
 myUser.MyUser globalUser;
@@ -30,6 +28,8 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  CollectionReference meetings =
+      FirebaseFirestore.instance.collection('Meetings');
   myUser.MyUser currentUser = myUser.MyUser();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -50,7 +50,7 @@ class _DashboardState extends State<Dashboard> {
     getLecturerStatus();
   }
 
-  void createGlobalUser() {
+  Future<void> createGlobalUser() async {
     globalUser = currentUser;
   }
 
@@ -240,10 +240,7 @@ class _DashboardState extends State<Dashboard> {
 
   //--------------------------- get lecturer status from firebase realtime database --------------
   void getLecturerStatus() {
-    databaseReference
-        .child('UserStatus')
-        .onValue
-        .listen((event) {
+    databaseReference.child('UserStatus').onValue.listen((event) {
       var snapshot = event.snapshot;
       setState(() {
         String value = snapshot.value['CurrentStatus'];
@@ -299,7 +296,7 @@ class _DashboardState extends State<Dashboard> {
         var curve = Curves.fastOutSlowIn;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -331,81 +328,83 @@ class _DashboardState extends State<Dashboard> {
               shrinkWrap: true,
               physics: ScrollPhysics(),
               children: <Widget>[
-            Container(
-            alignment: Alignment.center,
-              height: 30.0,
-              child: Text(
-                "Dear ${currentUser.getUserName()}, ${userStateText}",
-                style: smallAddressWhiteSI(),
-              ),
-              color: grey.withOpacity(0.66),
-            ),
-            Container(
-              height: 80.0,
-              child: BottomNavigationBar(
-                onTap: onTabTapped,
-                currentIndex: _currentIndex,
-                type: BottomNavigationBarType.fixed,
-                selectedFontSize: 32.0,
-                unselectedFontSize: 24.0,
-                backgroundColor: darkGrey,
-                items: [
-                  BottomNavigationBarItem(
-                    backgroundColor: darkGrey,
-                    icon: Text(
-                      "Scheduled Requests",
-                      style: smallAddressWhite2SansRegular(),
-                    ),
-                    title: Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Image.asset(
-                        "lib/assets/icon/today.png",
-                        height: 25.0,
-                        width: 25.0,
-                      ),
-                    ),
+                Container(
+                  alignment: Alignment.center,
+                  height: 30.0,
+                  child: Text(
+                    "Dear ${currentUser.getUserName()}, ${userStateText}",
+                    style: smallAddressWhiteSI(),
                   ),
-                  BottomNavigationBarItem(
+                  color: grey.withOpacity(0.66),
+                ),
+                Container(
+                  height: 80.0,
+                  child: BottomNavigationBar(
+                    onTap: onTabTapped,
+                    currentIndex: _currentIndex,
+                    type: BottomNavigationBarType.fixed,
+                    selectedFontSize: 32.0,
+                    unselectedFontSize: 24.0,
                     backgroundColor: darkGrey,
-                    icon: Text(
-                      "Scheduled Meetings",
-                      style: smallAddressWhite2SansRegular(),
-                    ),
-                    title: Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Image.asset(
-                        "lib/assets/icon/completed.png",
-                        height: 25.0,
-                        width: 25.0,
-                        color: Colors.white70,
+                    items: [
+                      BottomNavigationBarItem(
+                        backgroundColor: darkGrey,
+                        icon: Text(
+                          "Scheduled Requests",
+                          style: smallAddressWhite2SansRegular(),
+                        ),
+                        title: Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Image.asset(
+                            "lib/assets/icon/today.png",
+                            height: 25.0,
+                            width: 25.0,
+                          ),
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+                      BottomNavigationBarItem(
+                        backgroundColor: darkGrey,
+                        icon: Text(
+                          "Scheduled Meetings",
+                          style: smallAddressWhite2SansRegular(),
+                        ),
+                        title: Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Image.asset(
+                            "lib/assets/icon/completed.png",
+                            height: 25.0,
+                            width: 25.0,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 _children[_currentIndex],
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-            elevation: 6.0,
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 26.0,
+              ],
             ),
-            backgroundColor: secondary,
-            mini: false,
-            highlightElevation: 16.0,
-            onPressed: () {
-              Navigator.of(context).push(_navigateToAddMeeting());
-            }),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          ),
+          floatingActionButton: FloatingActionButton(
+              elevation: 6.0,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 26.0,
+              ),
+              backgroundColor: secondary,
+              mini: false,
+              highlightElevation: 16.0,
+              onPressed: () {
+                Navigator.of(context).push(_navigateToAddMeeting());
+              }),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        ),
       ),
-    ),);
+    );
   }
 }
+
 //------------------------------------------------ end build--------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++===++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //-------------------------------------- start  meeting in progress -------------------------------
@@ -415,8 +414,31 @@ class MeetingInProgress extends StatefulWidget {
 }
 
 class _MeetingInProgressState extends State<MeetingInProgress> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
-  Stream meetingRequests = FirebaseFirestore.instance.collection('Meetings').where('schedule_status',isEqualTo: 'pending').where('user_id', isEqualTo: globalUser.getUserId()).snapshots();
+  //----------------------------------------------- confirm meeting -------------------------------
+  Future<void> confirmMeeting(var id) {
+    return meetings
+        .doc(id)
+        .delete()
+        .then((value) => print("User Deleted"))
+        .catchError((error) => print("Failed to delete user: $error"));
+  }
+
+  final db = FirebaseFirestore.instance;
+
+  //------------------------------------------------------------------------------------
+
+  Stream meetingRequests = FirebaseFirestore.instance
+      .collection('Meetings')
+      .where('schedule_status', isEqualTo: 'pending')
+      .where('user_id', isEqualTo: globalUser.getUserId())
+      .snapshots();
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -428,10 +450,10 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
           );
         } else {
           return SizedBox(
-            height: 600,
+            height: 700,
             child: ListView(
               scrollDirection: Axis.vertical,
-              children: snapshot.data.documents.map<Widget>((document) {
+              children: snapshot.data.documents.map<Widget>((doc) {
                 return Column(
                   children: <Widget>[
                     Divider(
@@ -455,25 +477,24 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  "${DateFormat.MMMd().format(
-                                      document['schedule_date'].toDate())}",
+                                  "${DateFormat.MMMd().format(doc['schedule_date'].toDate())}",
                                   style: textStyleOrangeSS(),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
-                                    "${document['schedule_time']}",
+                                    "${doc['schedule_time']}",
                                     style: subTitleDarkSS(),
                                   ),
                                 ),
                               ],
                             ),
                             title: Text(
-                              "${document['meeting_title']}",
+                              "${doc['meeting_title']}",
                               style: subTitle(),
                             ),
                             subtitle: Text(
-                              "${document['user_name']}",
+                              "${doc['user_name']}",
                               style: smallAddressSS(),
                             ),
                           ),
@@ -482,13 +503,19 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                           Container(
                             color: orange,
                             child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  //taskCompleted = true;
-                                });
-                                // crudObj.updateData(snapshot.data.documents[index].documentID, loginType == 'fs' ? uid : loginType == 'fb' ? fbId : twId, {
-                                //   'completed': this.taskCompleted,
-                                // });
+                              onTap: () async {
+                                await db
+                                    .collection('Meetings')
+                                    .doc(doc.documentID)
+                                    .update({'schedule_status': 'confirmed'});
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        Dashboard(),
+                                  ),
+                                );
                               },
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -535,15 +562,19 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                             color: primary,
                             child: Center(
                               child: InkWell(
-                                onTap: () {
-                                  // crudObj.deleteData(snapshot.data.documents[index].documentID, loginType == 'fs' ? uid : loginType == 'fb' ? fbId : twId,);
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (BuildContext context) => Landing(
-                                  //     ),
-                                  //   ),
-                                  // );
+                                onTap: () async {
+                                  await db
+                                      .collection('Meetings')
+                                      .doc(doc.documentID)
+                                      .delete();
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          Dashboard(),
+                                    ),
+                                  );
                                 },
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -567,13 +598,13 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                     ),
                   ],
                 )
-                //   Center(
-                //   child: Container(
-                //     width: 70.0,
-                //     height: 50.0,
-                //     child: Text("Title :" + document['meeting_title']),
-                //   ),
-                // )
+                    //   Center(
+                    //   child: Container(
+                    //     width: 70.0,
+                    //     height: 50.0,
+                    //     child: Text("Title :" + document['meeting_title']),
+                    //   ),
+                    // )
                     ;
               }).toList(),
             ),
@@ -594,6 +625,19 @@ class MeetingCompleted extends StatefulWidget {
 }
 
 class _MeetingCompletedState extends State<MeetingCompleted> {
+  final db = FirebaseFirestore.instance;
+  Stream meetingConfirmed = FirebaseFirestore.instance
+      .collection('Meetings')
+      .where('schedule_status', isEqualTo: 'confirmed')
+      .where('user_id', isEqualTo: globalUser.getUserId())
+      .snapshots();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -605,10 +649,10 @@ class _MeetingCompletedState extends State<MeetingCompleted> {
           );
         } else {
           return SizedBox(
-            height: 600,
+            height: 700,
             child: ListView(
               scrollDirection: Axis.vertical,
-              children: snapshot.data.documents.map<Widget>((document) {
+              children: snapshot.data.documents.map<Widget>((doc) {
                 return Column(
                   children: <Widget>[
                     Divider(
@@ -632,25 +676,24 @@ class _MeetingCompletedState extends State<MeetingCompleted> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  "${DateFormat.MMMd().format(
-                                      document['schedule_date'].toDate())}",
+                                  "${DateFormat.MMMd().format(doc['schedule_date'].toDate())}",
                                   style: textStyleOrangeSS(),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
-                                    "${document['schedule_time']}",
+                                    "${doc['schedule_time']}",
                                     style: subTitleDarkSS(),
                                   ),
                                 ),
                               ],
                             ),
                             title: Text(
-                              "${document['meeting_title']}",
+                              "${doc['meeting_title']}",
                               style: subTitle(),
                             ),
                             subtitle: Text(
-                              "${document['user_name']}",
+                              "${doc['user_name']}",
                               style: smallAddressSS(),
                             ),
                           ),
@@ -712,15 +755,19 @@ class _MeetingCompletedState extends State<MeetingCompleted> {
                             color: primary,
                             child: Center(
                               child: InkWell(
-                                onTap: () {
-                                  // crudObj.deleteData(snapshot.data.documents[index].documentID, loginType == 'fs' ? uid : loginType == 'fb' ? fbId : twId,);
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (BuildContext context) => Landing(
-                                  //     ),
-                                  //   ),
-                                  // );
+                                onTap: () async {
+                                  await db
+                                      .collection('Meetings')
+                                      .doc(doc.documentID)
+                                      .delete();
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          Dashboard(),
+                                    ),
+                                  );
                                 },
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -744,13 +791,13 @@ class _MeetingCompletedState extends State<MeetingCompleted> {
                     ),
                   ],
                 )
-                //   Center(
-                //   child: Container(
-                //     width: 70.0,
-                //     height: 50.0,
-                //     child: Text("Title :" + document['meeting_title']),
-                //   ),
-                // )
+                    //   Center(
+                    //   child: Container(
+                    //     width: 70.0,
+                    //     height: 50.0,
+                    //     child: Text("Title :" + document['meeting_title']),
+                    //   ),
+                    // )
                     ;
               }).toList(),
             ),
