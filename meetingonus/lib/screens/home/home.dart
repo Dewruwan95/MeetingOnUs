@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:meetingonus/style/style.dart';
 import 'package:meetingonus/style/style.dart' as prefix0;
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -227,7 +228,7 @@ class _TestingState extends State<Testing> {
     return Scaffold(
       body: StreamBuilder(
         stream: meetings,
-        builder: (context,snapshot) {
+        builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(),
@@ -258,7 +259,7 @@ class _TestingState extends State<Testing> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  "${document['user_name']}",
+                                  "${DateFormat.MMMd().format(document['schedule_date'].toDate())}",
                                   style: textStyleOrangeSS(),
                                 ),
                                 Padding(
@@ -271,7 +272,7 @@ class _TestingState extends State<Testing> {
                               ],
                             ),
                             title: Text(
-                             "${document['meeting_title']}",
+                              "${document['meeting_title']}",
                               style: subTitle(),
                             ),
                             subtitle: Text(
@@ -294,16 +295,13 @@ class _TestingState extends State<Testing> {
                               },
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
-                                  Image.asset(
-                                      "lib/assets/icon/checked.png"),
+                                  Image.asset("lib/assets/icon/checked.png"),
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.only(top: 7.0),
+                                    padding: const EdgeInsets.only(top: 7.0),
                                     child: Text(
-                                      "Completed",
+                                      "Confirm",
                                       style: subTitleWhite2SansRegular(),
                                     ),
                                   ),
@@ -321,16 +319,14 @@ class _TestingState extends State<Testing> {
                               },
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
                                   Icon(FontAwesomeIcons.pencilAlt,
                                       size: 18.0, color: Colors.white),
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.only(top: 7.0),
+                                    padding: const EdgeInsets.only(top: 7.0),
                                     child: Text(
-                                      "Edit",
+                                      "Re Schedule",
                                       style: subTitleWhite2SansRegular(),
                                     ),
                                   ),
@@ -353,18 +349,14 @@ class _TestingState extends State<Testing> {
                                   // );
                                 },
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
-                                    Image.asset(
-                                        "lib/assets/icon/delete.png"),
+                                    Image.asset("lib/assets/icon/delete.png"),
                                     Padding(
-                                      padding:
-                                      const EdgeInsets.only(top: 2.0),
+                                      padding: const EdgeInsets.only(top: 2.0),
                                       child: Text(
-                                        "Delete",
+                                        "Cancel",
                                         style: subTitleWhite2SansRegular(),
                                       ),
                                     ),
@@ -378,14 +370,14 @@ class _TestingState extends State<Testing> {
                     ),
                   ],
                 )
-                //   Center(
-                //   child: Container(
-                //     width: 70.0,
-                //     height: 50.0,
-                //     child: Text("Title :" + document['meeting_title']),
-                //   ),
-                // )
-                ;
+                    //   Center(
+                    //   child: Container(
+                    //     width: 70.0,
+                    //     height: 50.0,
+                    //     child: Text("Title :" + document['meeting_title']),
+                    //   ),
+                    // )
+                    ;
               }).toList(),
             );
           }
