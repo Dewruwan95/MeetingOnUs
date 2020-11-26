@@ -45,6 +45,13 @@ class _AddMeetingState extends State<AddMeeting> {
     setState(() {
       loading = false;
     });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => myDashboard.Dashboard(),
+      ),
+    );
   }
 
   //-------------------------------- add data to firebase ----------------------------------

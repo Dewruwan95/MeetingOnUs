@@ -15,6 +15,7 @@ import 'package:splashscreen/splashscreen.dart';
 final FirebaseAuth auth = FirebaseAuth.instance;
 final databaseReference = FirebaseDatabase.instance.reference();
 CollectionReference users = FirebaseFirestore.instance.collection('users');
+var selectedMeetingId;
 
 String userStateText = '';
 
@@ -420,18 +421,7 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
     super.initState();
   }
 
-  //----------------------------------------------- confirm meeting -------------------------------
-  Future<void> confirmMeeting(var id) {
-    return meetings
-        .doc(id)
-        .delete()
-        .then((value) => print("User Deleted"))
-        .catchError((error) => print("Failed to delete user: $error"));
-  }
-
   final db = FirebaseFirestore.instance;
-
-  //------------------------------------------------------------------------------------
 
   Stream meetingRequests = FirebaseFirestore.instance
       .collection('Meetings')
@@ -439,6 +429,34 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
       .where('user_id', isEqualTo: globalUser.getUserId())
       .snapshots();
 
+  //------------------------------------------- re schedule meeting -------------------------------
+  void _reScheduleMeeting(var meetingId) {
+    selectedMeetingId = meetingId;
+
+    Navigator.of(context).push(_navigateToEditMeeting());
+  }
+
+  //----------------------- navigation animation for edit meeting ------------------------
+  Route _navigateToEditMeeting() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => EditMeeting(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.fastOutSlowIn;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
+//=============================================================================================================================================
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -539,7 +557,7 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                             color: primary,
                             child: InkWell(
                               onTap: () {
-                                //--------------------------------------------------------------------------------------------
+                                _reScheduleMeeting(doc.documentID);
                               },
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -822,6 +840,378 @@ class MySplashScreenToDashboard extends StatelessWidget {
       backgroundColor: primary,
       photoSize: 140.0,
       loaderColor: secondary,
+    );
+  }
+}
+
+//===============================================================================================================================================================
+class EditMeeting extends StatefulWidget {
+  @override
+  _EditMeetingState createState() => _EditMeetingState();
+}
+
+class _EditMeetingState extends State<EditMeeting> {
+  CollectionReference scheduledMeetings =
+      FirebaseFirestore.instance.collection('Meetings');
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final TextEditingController _meetingTitleController = TextEditingController();
+  final TextEditingController _meetingNoteController = TextEditingController();
+  DateTime pickedDate;
+  TimeOfDay pickedTime;
+  bool loading = false;
+
+  //-------------------- get meeting details --------------------------------\
+  Future<void> getMeetingDetails() {
+    scheduledMeetings.doc(selectedMeetingId).snapshots().listen((event) {
+      _meetingTitleController.text = event.data()["meeting_title"];
+      _meetingNoteController.text = event.data()["meeting_note"];
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getMeetingDetails();
+
+    pickedDate = DateTime.now();
+    pickedTime = TimeOfDay.now();
+  }
+
+  //--------------------------- create date picker -----------------------
+  void _pickDate() async {
+    DateTime date = await showDatePicker(
+      context: context,
+      firstDate: DateTime(DateTime.now().year - 1),
+      lastDate: DateTime(DateTime.now().year + 1),
+      initialDate: pickedDate,
+    );
+
+    if (date != null) {
+      setState(() {
+        pickedDate = date;
+      });
+    }
+  }
+
+//----------------------------- create time picker ----------------------------
+  void _pickTime() async {
+    TimeOfDay time = await showTimePicker(
+      context: context,
+      initialTime: pickedTime,
+    );
+
+    if (time != null) {
+      setState(() {
+        pickedTime = time;
+      });
+    }
+  }
+
+  //----------------------------- show snack bar -----------------------------------
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Text(
+        value,
+        textAlign: TextAlign.center,
+      ),
+      duration: Duration(seconds: 3),
+    ));
+  }
+
+  //-------------------------------- update meeting cloud ----------------------------------
+  Future<void> _updateMeetingToCloud() {
+    return meetings
+        .doc(selectedMeetingId)
+        .update({
+          'user_id': globalUser.getUserId(),
+          'user_name': globalUser.getUserName(),
+          'user_email': globalUser.getUserEmail(),
+          'meeting_title': _meetingTitleController.text,
+          'meeting_note': _meetingNoteController.text,
+          'schedule_date': pickedDate,
+          'schedule_time': "${pickedTime.hour}:${pickedTime.minute}",
+          'schedule_status': 'pending',
+        })
+        .then((value) => print("Your meeting scheduled successfully"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
+
+//--------------------------------- schedule meeting ---------------------
+  Future<void> _updateScheduleMeeting() async {
+    setState(() {
+      loading = true;
+    });
+
+    _updateMeetingToCloud();
+    await Future.delayed(const Duration(seconds: 2), () {
+      showInSnackBar('Your meeting updated successfully');
+    });
+
+    setState(() {
+      loading = false;
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => Dashboard(),
+      ),
+    );
+  }
+
+  //---------------------------------------------------------------------------------------------------------------------------------------
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      key: _scaffoldKey,
+      appBar: AppBar(
+          title: Text(
+            "Schedule New Meeting",
+            style: subBoldTitleWhite(),
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
+          elevation: 0.0,
+          backgroundColor: primary,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ]),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          fit: StackFit.expand,
+          children: <Widget>[
+            new Image(
+              image: new AssetImage("lib/assets/bg/background.png"),
+              fit: BoxFit.cover,
+            ),
+            SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Container(
+                  //   padding: EdgeInsets.fromLTRB(30.0, 40.0, 30.0, 0.0),
+                  //   child: Image(
+                  //     image: AssetImage("lib/assets/icon/logowithtext.png"),
+                  //     height: 70,
+                  //   ),
+                  // ),
+                  Container(
+                    width: prefix0.screenWidth(context) * 0.8,
+                    padding: EdgeInsets.fromLTRB(30.0, 40.0, 0.0, 30.0),
+                    child: Text(
+                      "Please type a meeting title and briefly describe your situation",
+                      style: subTitleWhite2SansRegular(),
+                      textAlign: TextAlign.justify,
+                    ),
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Theme(
+                      data: ThemeData(
+                        brightness: Brightness.dark,
+                        accentColor: primary,
+                        inputDecorationTheme: new InputDecorationTheme(
+                          labelStyle: new TextStyle(
+                            color: primary,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 15.0),
+                            child: Stack(
+                              children: <Widget>[
+                                Container(
+                                  width: screenWidth(context) * 0.83,
+                                  color: Colors.white,
+                                  padding: EdgeInsets.only(left: 65.0),
+                                  child: TextFormField(
+                                    cursorColor: border,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Meeting Title',
+                                      hintStyle: hintStyleDark(),
+                                    ),
+                                    style: hintStyleDark(),
+                                    keyboardType: TextInputType.text,
+                                    validator: (String value) => value.isEmpty
+                                        ? 'Meeting title cannot be empty'
+                                        : null,
+                                    onSaved: (String value) {
+                                      _meetingTitleController.text = value;
+                                    },
+                                    controller: _meetingTitleController,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -18.0,
+                                  left: -8.0,
+                                  right: (screenWidth(context) * 0.83) - 55.0,
+                                  child: Stack(
+                                    fit: StackFit.loose,
+                                    alignment: AlignmentDirectional.center,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        "lib/assets/icon/sendicon.png",
+                                        fit: BoxFit.fitHeight,
+                                        height: 85,
+                                        width: 85,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            bottom: 4.0, left: 0.0),
+                                        child: Icon(
+                                          Icons.notes_sharp,
+                                          color: Colors.white,
+                                          size: 16.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: prefix0.screenWidth(context) * 0.83,
+                            padding: EdgeInsets.only(bottom: 15.0),
+                            child: Stack(
+                              children: <Widget>[
+                                Container(
+                                  color: Colors.white,
+                                  padding: EdgeInsets.only(left: 12.0),
+                                  child: TextFormField(
+                                    cursorColor: border,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Meeting Note',
+                                      hintStyle: hintStyleDark(),
+                                    ),
+                                    maxLines: 5,
+                                    style: hintStyleDark(),
+                                    keyboardType: TextInputType.text,
+                                    validator: (String value) => value.isEmpty
+                                        ? 'Please write a small note'
+                                        : null,
+                                    onSaved: (String value) {
+                                      _meetingNoteController.text = value;
+                                    },
+                                    controller: _meetingNoteController,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(
+                                top: 5.0, start: 35.0, end: 35.0, bottom: 10.0),
+                            child: ListTile(
+                              tileColor: Colors.white,
+                              title: Text(
+                                "Schedule Date :  ${pickedDate.year} - ${pickedDate.month} - ${pickedDate.day}",
+                                style: hintStyleDark(),
+                              ),
+                              trailing: Icon(
+                                Icons.calendar_today_outlined,
+                                size: 27.0,
+                                color: Colors.black54,
+                              ),
+                              onTap: _pickDate,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(
+                                top: 5.0, start: 35.0, end: 35.0, bottom: 10.0),
+                            child: ListTile(
+                              tileColor: Colors.white,
+                              title: Text(
+                                "Schedule Time :  ${pickedTime.hour} : ${pickedTime.minute}",
+                                style: hintStyleDark(),
+                              ),
+                              trailing: Icon(
+                                Icons.access_time_outlined,
+                                size: 30.0,
+                                color: Colors.black54,
+                              ),
+                              onTap: _pickTime,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(
+                                top: 30.0,
+                                start: 45.0,
+                                end: 45.0,
+                                bottom: 10.0),
+                            child: RawMaterialButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              fillColor: secondary,
+                              child: Container(
+                                height: 45.0,
+                                width: screenWidth(context) * 0.5,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      'UPDATE',
+                                      style: subTitleWhiteSansRegular(),
+                                    ),
+                                    new Padding(
+                                      padding: new EdgeInsets.only(
+                                          left: 5.0, right: 5.0),
+                                    ),
+                                    loading == true
+                                        ? new Image.asset(
+                                            'lib/assets/gif/load.gif',
+                                            width: 19.0,
+                                            height: 19.0,
+                                          )
+                                        : new Text(''),
+                                  ],
+                                ),
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  _updateScheduleMeeting();
+                                }
+                              },
+                              splashColor: secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
