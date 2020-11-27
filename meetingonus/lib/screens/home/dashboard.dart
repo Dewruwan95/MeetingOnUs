@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:meetingonus/meetings/add_meeting.dart';
+import 'package:meetingonus/screens/authentication/login.dart';
 import 'package:meetingonus/screens/home/drawer.dart';
 import 'package:meetingonus/style/style.dart';
 import 'package:meetingonus/style/style.dart' as prefix0;
@@ -49,6 +50,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     inputData();
     getLecturerStatus();
+
   }
 
   Future<void> createGlobalUser() async {
@@ -240,7 +242,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   //--------------------------- get lecturer status from firebase realtime database --------------
-  void getLecturerStatus() {
+  Future<void> getLecturerStatus() async{
     databaseReference.child('UserStatus').onValue.listen((event) {
       var snapshot = event.snapshot;
       setState(() {
@@ -425,8 +427,8 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
 
   Stream meetingRequests = FirebaseFirestore.instance
       .collection('Meetings')
+      .where('user_id', isEqualTo: userAuthenticationFromLoginGlobalId)
       .where('schedule_status', isEqualTo: 'pending')
-      .where('user_id', isEqualTo: globalUser.getUserId())
       .snapshots();
 
   //------------------------------------------- re schedule meeting -------------------------------

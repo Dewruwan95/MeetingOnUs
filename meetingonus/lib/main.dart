@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Meeting on Us',
-      home: MySplashScreenToLogin(),
+      home:MySplashScreenToLogin(),
     );
   }
 }

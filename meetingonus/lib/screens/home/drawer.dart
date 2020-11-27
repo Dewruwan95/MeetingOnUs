@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:meetingonus/screens/authentication/login.dart';
 import 'package:meetingonus/screens/profile/profile.dart';
 import 'package:meetingonus/settings/help.dart';
 import 'package:meetingonus/settings/settings.dart';
 import 'package:meetingonus/style/style.dart';
 import 'package:meetingonus/screens/home/dashboard.dart' as myDashboard;
-
 
 import 'dashboard.dart';
 
@@ -15,18 +18,20 @@ class MyDrawer extends StatefulWidget {
 
 class _MyDrawerState extends State<MyDrawer> {
   bool selected = false;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
   //----------------------- navigation animation for Dashboard ------------------------
   Route _navigateToDashboard() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => myDashboard.Dashboard(),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          myDashboard.Dashboard(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;
         var curve = Curves.fastOutSlowIn;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -35,7 +40,6 @@ class _MyDrawerState extends State<MyDrawer> {
       },
     );
   }
-
 
   //----------------------- navigation animation for profile ------------------------
   Route _navigateToProfile() {
@@ -47,7 +51,7 @@ class _MyDrawerState extends State<MyDrawer> {
         var curve = Curves.fastOutSlowIn;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -56,6 +60,7 @@ class _MyDrawerState extends State<MyDrawer> {
       },
     );
   }
+
   //----------------------- navigation animation for settings ------------------------
   Route _navigateToSettings() {
     return PageRouteBuilder(
@@ -66,7 +71,7 @@ class _MyDrawerState extends State<MyDrawer> {
         var curve = Curves.fastOutSlowIn;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -86,7 +91,7 @@ class _MyDrawerState extends State<MyDrawer> {
         var curve = Curves.fastOutSlowIn;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -95,6 +100,22 @@ class _MyDrawerState extends State<MyDrawer> {
       },
     );
   }
+
+//-------------------- sign out google ----------------------------
+  Future<Login> _signOutGoogle() async {
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => MySplashScreenToLogin(),
+        ),
+        (Route<dynamic> route) => false);
+  }
+
+  //----------------- sign out facebook ---------------------
+  static final FacebookLogin facebookSignIn = new FacebookLogin();
+
   //------------------------------------ Start Build Function ------------------------
   @override
   Widget build(BuildContext context) {
@@ -194,6 +215,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   ),
                   InkWell(
                     onTap: () async {
+                      _signOutGoogle();
                       // Navigator.of(context).pop();
                       // SharedPreferences prefs =
                       //     await SharedPreferences.getInstance();

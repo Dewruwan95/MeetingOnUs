@@ -21,19 +21,92 @@ class _MeetingListState extends State<MeetingList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Meeting List'),
-      ),
-      body: ListView.separated(
-        itemCount: 5,
-        separatorBuilder: (context, index) => Divider(),
-        itemBuilder: (context, index) {
-          return Container(
-            height: 50,
-            color: Colors.green,
-          );
-        },
+    return DefaultTextStyle(
+      style: Theme.of(context).textTheme.headline2,
+      textAlign: TextAlign.center,
+      child: Container(
+        alignment: FractionalOffset.center,
+        color: Colors.white,
+        child: StreamBuilder(
+          stream: meetings,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            List<Widget> children;
+            if (snapshot.hasError) {
+              children = <Widget>[
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                )
+              ];
+            } else {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  children = <Widget>[
+                    Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                      size: 60,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Select a lot'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.waiting:
+                  children = <Widget>[
+                    SizedBox(
+                      child: const CircularProgressIndicator(),
+                      width: 60,
+                      height: 60,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Awaiting bids...'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.active:
+                  children = <Widget>[
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: Colors.green,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('\$${snapshot.data.toString()}'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.done:
+                  children = <Widget>[
+                    Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('${snapshot.data.toString()} '),
+                    )
+                  ];
+                  break;
+              }
+            }
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: children,
+            );
+          },
+        ),
       ),
     );
   }

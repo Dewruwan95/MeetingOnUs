@@ -26,6 +26,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
   final CollectionReference users =
       FirebaseFirestore.instance.collection('users');
 
