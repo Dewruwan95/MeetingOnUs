@@ -249,8 +249,10 @@ class _DashboardState extends State<Dashboard> {
         String value = snapshot.value['CurrentStatus'];
         if (value == 'active') {
           userStateText = 'Lecturer in the room now';
-        } else {
+        } else if (value == 'deactive') {
           userStateText = 'Lecturer not in the room now';
+        }else{
+          userStateText = 'Loading Data ...';
         }
       });
     });
