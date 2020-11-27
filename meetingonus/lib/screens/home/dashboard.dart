@@ -360,11 +360,12 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         title: Padding(
                           padding: const EdgeInsets.only(top: 4.0),
-                          child: Image.asset(
-                            "lib/assets/icon/today.png",
-                            height: 25.0,
-                            width: 25.0,
-                          ),
+                          child: Icon(FontAwesomeIcons.calendarPlus,size: 22.0,color: Colors.white70,),
+                          // Image.asset(
+                          //   "lib/assets/icon/today.png",
+                          //   height: 25.0,
+                          //   width: 25.0,
+                          // ),
                         ),
                       ),
                       BottomNavigationBarItem(
@@ -375,12 +376,13 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         title: Padding(
                           padding: const EdgeInsets.only(top: 4.0),
-                          child: Image.asset(
-                            "lib/assets/icon/completed.png",
-                            height: 25.0,
-                            width: 25.0,
-                            color: Colors.white70,
-                          ),
+                          child: Icon(FontAwesomeIcons.calendarCheck,size: 22.0,color: Colors.white70,),
+                          // Image.asset(
+                          //   "lib/assets/icon/completed.png",
+                          //   height: 25.0,
+                          //   width: 25.0,
+                          //   color: Colors.white70,
+                          // ),
                         ),
                       )
                     ],
@@ -543,7 +545,8 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
-                                  Image.asset("lib/assets/icon/checked.png"),
+                                  Icon(FontAwesomeIcons.solidCheckCircle,size: 22.0,color: Colors.white,),
+                                  //Image.asset("lib/assets/icon/checked.png"),
                                   Padding(
                                     padding: const EdgeInsets.only(top: 7.0),
                                     child: Text(
@@ -602,7 +605,8 @@ class _MeetingInProgressState extends State<MeetingInProgress> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
-                                    Image.asset("lib/assets/icon/delete.png"),
+                                    Icon(FontAwesomeIcons.trashAlt,size: 18.0,color: Colors.white,),
+                                    //Image.asset("lib/assets/icon/delete.png"),
                                     Padding(
                                       padding: const EdgeInsets.only(top: 2.0),
                                       child: Text(

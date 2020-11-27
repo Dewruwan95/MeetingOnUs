@@ -41,8 +41,8 @@ class _LoginState extends State<Login> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  bool _success; //to check user registration complete of not
-  String _userEmail;
+  //bool _success; //to check user registration complete of not
+  //String _userEmail;
 
   void onChangedCheckBoxValue(bool value) {
     setState(() {
@@ -189,37 +189,37 @@ class _LoginState extends State<Login> {
 
 //------------------------------------------------------------ Common Alert Dialog ----------------------------------------
 
-  AlertDialog _alertCommon(String myAlert) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              "Alert!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            content: Text(myAlert),
-            backgroundColor: primary,
-            actions: [
-              FlatButton(
-                  child: Text("Close"),
-                  color: secondary,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _clear();
-                  }),
-            ],
-          );
-        });
-  }
+  // AlertDialog _alertCommon(String myAlert) {
+  //   showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text(
+  //             "Alert!",
+  //             style: TextStyle(
+  //               color: Colors.white,
+  //             ),
+  //           ),
+  //           content: Text(myAlert),
+  //           backgroundColor: primary,
+  //           actions: [
+  //             FlatButton(
+  //                 child: Text("Close"),
+  //                 color: secondary,
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                   _clear();
+  //                 }),
+  //           ],
+  //         );
+  //       });
+  // }
 
-  //----------------------------------------------- Clear Controller Values ----------------------------------------
-  void _clear() {
-    _emailController.clear();
-    _passwordController.clear();
-  }
+  // //----------------------------------------------- Clear Controller Values ----------------------------------------
+  // void _clear() {
+  //   _emailController.clear();
+  //   _passwordController.clear();
+  // }
 
   //----------------------- navigation animation for register------------------------
   Route _navigateToRegister() {

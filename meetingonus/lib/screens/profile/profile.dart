@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meetingonus/screens/home/dashboard.dart' as myDashboard;
 import 'package:meetingonus/screens/home/drawer.dart';
 import 'package:meetingonus/style/style.dart';
@@ -146,11 +147,13 @@ class _ProfileState extends State<Profile> {
                     Row(
                       children: <Widget>[
                         IconButton(
-                            icon: Image.asset(
-                          "lib/assets/icon/timeline.png",
-                          height: 22.0,
-                          width: 22.0,
-                        )),
+                            icon: Icon(FontAwesomeIcons.calendarAlt,size: 20.0,color: Colors.black54,),
+                        //     Image.asset(
+                        //   "lib/assets/icon/timeline.png",
+                        //   height: 22.0,
+                        //   width: 22.0,
+                        // ),
+                        ),
                         Text(
                           "Schedule List",
                           style: textSmallStyleGreySS(),
@@ -158,11 +161,13 @@ class _ProfileState extends State<Profile> {
                       ],
                     ),
                     IconButton(
-                        icon: Image.asset(
-                      "lib/assets/icon/arrow.png",
-                      height: 22.0,
-                      width: 22.0,
-                    )),
+                        icon: Icon(Icons.arrow_forward,color: Colors.black,),
+                    //     Image.asset(
+                    //   "lib/assets/icon/arrow.png",
+                    //   height: 22.0,
+                    //   width: 22.0,
+                    // ),
+                    ),
                   ],
                 ),
               ),
@@ -191,12 +196,14 @@ class _ProfileState extends State<Profile> {
                     Row(
                       children: <Widget>[
                         IconButton(
-                            icon: Image.asset(
-                          "lib/assets/icon/completed.png",
-                          height: 22.0,
-                          width: 22.0,
-                          color: Colors.black,
-                        )),
+                            icon: Icon(FontAwesomeIcons.calendarCheck,size: 20.0,color: Colors.black54,),
+                        //     Image.asset(
+                        //   "lib/assets/icon/completed.png",
+                        //   height: 22.0,
+                        //   width: 22.0,
+                        //   color: Colors.black,
+                        // ),
+                        ),
                         Text(
                           "Schedule History",
                           style: textSmallStyleGreySS(),
@@ -204,11 +211,13 @@ class _ProfileState extends State<Profile> {
                       ],
                     ),
                     IconButton(
-                        icon: Image.asset(
-                      "lib/assets/icon/arrow.png",
-                      height: 22.0,
-                      width: 22.0,
-                    )),
+                        icon: Icon(Icons.arrow_forward,color: Colors.black,)
+                    //     Image.asset(
+                    //   "lib/assets/icon/arrow.png",
+                    //   height: 22.0,
+                    //   width: 22.0,
+                    // ),
+                    ),
                   ],
                 ),
               ),

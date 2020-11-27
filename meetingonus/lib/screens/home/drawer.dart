@@ -9,8 +9,6 @@ import 'package:meetingonus/settings/settings.dart';
 import 'package:meetingonus/style/style.dart';
 import 'package:meetingonus/screens/home/dashboard.dart' as myDashboard;
 
-import 'dashboard.dart';
-
 class MyDrawer extends StatefulWidget {
   @override
   _MyDrawerState createState() => _MyDrawerState();
