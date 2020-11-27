@@ -15,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "379552659769-5c7m93br3v0k1s8btgr76ju7msbja3tm.apps.googleusercontent.com",
+          "client_id": "379552659769-4vn309urv02avb61ab73c7v47rlamhjk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cybermart.meetingonus",
+            "certificate_hash": "9be91200113fcc2487c0d119c62e26288fa26e1a"
+          }
+        },
+        {
+          "client_id": "379552659769-mn7nrvc9tfrr2sasjfr52ga60f7jl1fl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.cybermart.meetingonus",

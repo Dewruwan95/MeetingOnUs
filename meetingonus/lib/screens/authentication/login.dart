@@ -18,6 +18,7 @@ final plugin = FacebookLogin(debug: true);
 
 var userAuthenticationFromLoginGlobalId;
 var userEmailFromLoginGlobal;
+var userNameFromLoginGlobal;
 
 
 class Login extends StatefulWidget {
